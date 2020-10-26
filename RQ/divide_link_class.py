@@ -6,11 +6,16 @@ from datetime import datetime
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+
+def read_token():
+    token_file = open("../data/token_list.txt",'r')
+    tokens = token_file.readlines()
+    return tokens
 
 def query_request(query, owner, repo, type, last_end_cursor=None):
-    """封装后的 GraphQL 请求"""
-    retry_flag = False
-    token = "302c872edc4a37e563de72986e09749b12196c88"
+    tokens = read_token()
+    token = tokens[random.randint(0,8)].strip()
     headers = {"Authorization": "Bearer %s" % token}
     if last_end_cursor == None:
         query_ = query % (owner, repo, type)
