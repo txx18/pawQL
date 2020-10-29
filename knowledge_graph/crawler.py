@@ -37,7 +37,7 @@ class GithubAPIv3(object):
         """
         one_topic = q.split(":")[1]
         print("begin to search: " + q)
-        pageNo = 2
+        pageNo = 1
         while True:
             print("crawling page " + str(pageNo) + "...")
             tokens = read_token()
@@ -49,22 +49,24 @@ class GithubAPIv3(object):
                 # 获取第pageNo页
                 response = requests.get(url=url, headers=headers)
                 response_json = response.json()
+                # 有时候被拒绝请求会返回message，抛出异常，请求重试
+                print("response.status_code: " + str(response.status_code))
+                if response.status_code != 200:
+                    raise Exception("request error with search " + q)
                 # 测试API限制
                 print(headers)
                 print("X-RateLimit-Limit: " + str(response.headers.get("X-RateLimit-Limit")))
                 print("X-RateLimit-Remaining: " + str(response.headers.get("X-RateLimit-Remaining")))
                 print('X-RateLimit-Reset: ' + str(response.headers.get("X-RateLimit-Reset")))
-                # 有时候被拒绝请求会返回message，抛出异常，请求重试
-                print("response.status_code: " + str(response.status_code))
-                if response.status_code != 200:
-                    raise Exception("request error with search " + q)
                 # 写入文件
                 out_dir = os.path.join(os.getcwd(), "..", "tx_data", "topic_repo", one_topic)
                 writeJsonFile(out_dir, os.path.join(out_dir, "page" + str(pageNo) + ".json"), response_json)
+                print("write to file: " + str(os.path.join(out_dir, "page" + str(pageNo) + ".json")))
                 # 如果有下一页，循环
-                while response.links.__contains__("next"):
+                if response.links.__contains__("next"):
                     pageNo += 1
-                    continue
+                else:
+                    break
             except Exception as e:
                 print(e)
                 print("error at page" + str(pageNo) + "...retrying...")
@@ -113,10 +115,41 @@ class GithubAPIv4(object):
                 continue
         print("get finished")
 
+    def list_relate_topics(self, topic):
+        while True:
+            tokens = read_token()
+            token = tokens[random.randint(0, len(tokens) - 1)].strip()
+            headers = {"Authorization": "Bearer %s" % token}
+            query = queries.topic_query % topic
+            try:
+                response = requests.post(url=self.api, headers=headers, json={"query": query})
+                response_json = response.json()
+                print("response.status_code: " + str(response.status_code))
+                if response.status_code != 200:
+                    raise Exception("request error: " + topic)
+                # 写入文件
+                out_dir = os.path.join(os.getcwd(), "..", "tx_data", "topic")
+                writeJsonFile(out_dir, os.path.join(out_dir, topic + ".json"), response_json)
+                break
+            except Exception as e:
+                print(e)
+                print("exception at: " + topic)
+                continue
+        print("get finished")
+
 
 if __name__ == "__main__":
     v3 = GithubAPIv3()
-    v3.search_repos("topic:deep-learning", "stars", "desc", 100)
+    for topic in ["rnn", "lstm", "recurrent-neural-networks", "recurrent-neural-network", "gru",
+                  "cnn", "convolutional-neural-network", "convolutional-neural-networks",
+                  "gradient-descent", "auto-encoder", "convolutional-autoencoders", "convolutional-networks",
+                  "gan", "logistic-regression", "meta-learning", "shot-learning", "maml",
+                  "nlp", "natural-language-processing", "sentiment-analysis", "nltk", "spacy",
+                  "transfer-learning", "classifier", "unsupervised-learning", "supervised-learning",
+                  "semi-supervised-learning", "clustering-algorithms", "kmeans-clustering", "clustering",
+                  "word-embedding"]:
+        v3.search_repos("topic:" + topic, "stars", "desc", 100)
 
-    # v4 = GithubAPIv4()
+    v4 = GithubAPIv4()
     # v4.get_repo("pytorch/pytorch")
+    # v4.list_relate_topics("semi-supervised-learning")

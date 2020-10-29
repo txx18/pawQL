@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import random
 
 def read_token():
-    token_file = open("../data/token_list.txt",'r')
+    token_file = open("../config/token_list.txt", 'r')
     tokens = token_file.readlines()
     return tokens
 

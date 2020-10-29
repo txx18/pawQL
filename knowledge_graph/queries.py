@@ -1,6 +1,6 @@
 topic_query = """
 query{
-  topic(name: "deep-learning") {
+  topic(name: "%s") {
     name
     relatedTopics(first: 10) {
       name
