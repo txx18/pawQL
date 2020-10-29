@@ -2,8 +2,14 @@ import os
 import json
 
 
-# 将结果写入文件
 def writeFile(fileDir, file, data):
+    """
+    python to file
+    :param fileDir:
+    :param file:
+    :param data:
+    :return:
+    """
     if not os.path.exists(fileDir):
         os.makedirs(fileDir)
     with open(file, 'w', encoding="utf-8") as outfile:
@@ -12,6 +18,13 @@ def writeFile(fileDir, file, data):
 
 
 def writeFileAppend(fileDir, file, data):
+    """
+    python to file append
+    :param fileDir:
+    :param file:
+    :param data:
+    :return:
+    """
     if not os.path.exists(fileDir):
         os.makedirs(fileDir)
     with open(file, 'a', encoding="utf-8") as outfile:
@@ -19,7 +32,14 @@ def writeFileAppend(fileDir, file, data):
         outfile.write(data)
 
 
-def writeJsonFile(fileDir, file, data):
+def write_json_file(fileDir, file, data):
+    """
+    python to json file
+    :param fileDir:
+    :param file:
+    :param data:
+    :return:
+    """
     if not os.path.exists(fileDir):
         os.makedirs(fileDir)
     with open(file, 'w', encoding='utf-8') as outfile:
@@ -27,10 +47,15 @@ def writeJsonFile(fileDir, file, data):
         # outfile.write(data)
 
 
-# 读取json
-def readJsonFile(filepath):
+def read_json_file(filepath):
+    """
+    json file to python
+    :param filepath:
+    :return:
+    """
     with open(filepath, 'r', encoding="utf-8") as f:
         return json.load(f)
 
+
 if __name__ == "__main__":
-    writeJsonFile("..", "test.json", {"name": "唐轩"})
+    write_json_file("..", "test.json", {"name": "唐轩"})
