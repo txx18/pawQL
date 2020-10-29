@@ -3,6 +3,19 @@ import os
 from util.FileUtils import read_json_file
 
 
+def get_data_one_topic_repo(topic_path):
+    res = set()
+    for page_index, page_file in enumerate(os.listdir(topic_path)):
+        json = read_json_file(os.path.join(topic_path, page_file))
+        # 预处理，忽略fork的仓库 private仓库
+        for item in json["items"]:
+            exclude = item["size"] == 0 or item["fork"] or item["private"]
+            if exclude is True:
+                continue
+            res.add(item["full_name"])
+    return res
+
+
 def get_data_topic_repo_set(topic_repo_path):
     res = set()
     for topic_index, topic_dir in enumerate(os.listdir(topic_repo_path)):
@@ -13,8 +26,7 @@ def get_data_topic_repo_set(topic_repo_path):
                 exclude = item["size"] == 0 or item["fork"] or item["private"]
                 if exclude is True:
                     continue
-                full_name = item["full_name"]
-                res.add(full_name)
+                res.add(item["full_name"])
     return res
 
 

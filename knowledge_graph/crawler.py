@@ -5,7 +5,7 @@ import time
 import requests
 
 from knowledge_graph import queries
-from knowledge_graph.statistic import get_data_repo_set, get_data_topic_repo_set
+from knowledge_graph.statistic import *
 from util.FileUtils import write_json_file
 
 
@@ -79,6 +79,15 @@ class GithubAPIv4(object):
 
     def __init__(self):
         self.api = "https://api.github.com/graphql"
+
+    def get_topic_repo(self, topic_path):
+        data_one_topic_repo_set = get_data_one_topic_repo(topic_path)
+        # 扫描已有的仓库数据
+        data_repo_set = get_data_repo_set(os.path.join(os.getcwd(), "..", "tx_data", "repo"))
+        payload_repo_set = data_one_topic_repo_set - data_repo_set
+        for repo in payload_repo_set:
+            self.get_repo(repo)
+        print("get topic repo batch finished")
 
     def get_repo_batch(self):
         # 扫描topic需要爬取的仓库
@@ -161,19 +170,14 @@ class GithubAPIv4(object):
 
 if __name__ == "__main__":
     v3 = GithubAPIv3()
-    # for topic in ["rnn", "lstm", "recurrent-neural-networks", "recurrent-neural-network", "gru",
-    #               "cnn", "convolutional-neural-network", "convolutional-neural-networks",
-    #               "gradient-descent", "auto-encoder", "convolutional-autoencoders", "convolutional-networks",
-    #               "gan", "logistic-regression", "meta-learning", "shot-learning", "maml",
-    #               "nlp", "natural-language-processing", "sentiment-analysis", "nltk", "spacy",
-    #               "transfer-learning", "classifier", "unsupervised-learning", "supervised-learning",
-    #               "semi-supervised-learning", "clustering-algorithms", "kmeans-clustering", "clustering",
-    #               "word-embedding"]:
+    # topic_list = ["deep-learning"]
+    # for topic in topic_list:
     #     v3.search_repos("topic:" + topic, "stars", "desc", 100)
 
     v4 = GithubAPIv4()
     # v4.get_repo("pytorch/pytorch")
+    v4.get_topic_repo(os.path.join(os.getcwd(), "..", "tx_data", "topic_repo", "deep-learning"))
     # v4.list_relate_topics("semi-supervised-learning")
 
-    v4.get_repo_batch()
-    print("finished")
+    # v4.get_repo_batch()
+    # print("finished")
